@@ -20,8 +20,8 @@ const int iconSize = 48;
 const int SDA_PIN=D1;
 const int SCL_PIN=D2;
 
-const char* ssid     = "ITap Group";
-const char* password = "gameshooting1";
+const char* ssid     = "ssidname";
+const char* password = "password";
 
 Adafruit_ssd1306syp display(SDA_PIN, SCL_PIN);
 
@@ -36,7 +36,6 @@ void renderTitle(int x,int y){
 
 void setup(){
     display.initialize();
-
     for(int i=0; i>0; i--){
       delay(5);
       renderTitle(0,i);
@@ -64,7 +63,7 @@ struct view{ int y; String date; int temp; String text;String day;String type;St
 view currentView;
 
 
-
+// TODO: create a class for handling views
 void getData(){
  if(n>7) n=0;
  String json = myW.getData();  
@@ -96,6 +95,9 @@ void getData(){
     n++;  
   }
 }
+
+
+// TODO: create a class for handling views
 
 void handleView(struct view newView){
   Serial.println(newView.type);
@@ -138,7 +140,6 @@ void renderV(struct view v){
         display.drawBitmap(display.width()-iconSize,v.y+10,breezy,iconSize,iconSize,WHITE);  
       }  
   }
-
   display.setTextSize(1);
   if(v.type=="ss"){
     display.drawBitmap((display.width()/2)-(iconSize/2),v.y+0,sunset,iconSize,iconSize,WHITE);  
@@ -149,21 +150,13 @@ void renderV(struct view v){
     display.setCursor(0,v.y+50);
     display.println(v.time);
   }
-  
-  
   display.update();
 }
 
 
-void test(){
-  Serial.println("test");
-}
-
-//asyncDelay a = asyncDelay(5000);
 asyncDelay b = asyncDelay(5000);
 void loop(){
   delay(500);  
-  //a.runJob(&test);
   b.runJob(&getData);
 }  
 
