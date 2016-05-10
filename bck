@@ -1,0 +1,72 @@
+#include <Wire.h>
+#include <SPI.h>
+#include <ArduinoJson.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_ssd1306syp.h>
+#include <ESP8266WiFi.h>
+#include "yahooWeather.h"
+#include "asyncDelay.h"
+
+const int SDA_PIN D1;
+const int SCL_PIN D2;
+
+const char* ssid     = "ITap Group";
+const char* password = "gameshooting1";
+
+Adafruit_ssd1306syp display(SDA_PIN, SCL_PIN);
+
+yahooWeather myW = yahooWeather();;
+void setup(){
+    display.initialize();
+    display.clear();
+    display.println("Weather Forecast");
+    display.update();
+    WiFi.begin(ssid, password);
+    Serial.begin(115200);
+    while(WiFi.status()!=WL_CONNECTED){
+      delay(500);
+      Serial.print('.');
+    }
+    WiFiClient client;    
+    Serial.println("connected");
+    myW.Start(client,100);
+    Serial.println("started");
+}
+int n=0;
+
+struct currentView{ int x, int date, int temp, String text};
+struct newView{ int x, int date, int temp, String text};
+
+void getData(){
+ if(n>8) n=0;
+ String json = myW.getData();  
+  DynamicJsonBuffer  jsonBuffer;
+  JsonObject& root = jsonBuffer.parseObject(json);  
+  if (!root.success()) {
+      Serial.println("parseObject() failed");          
+  } else{
+    JsonObject& forecast = root["query"]["results"]["channel"]["item"]["forecast"][n];        
+    Serial.println("Data: " + s); 
+    n++;  
+  }
+}
+
+void renderView(struct newView){
+  for(int i=currentView->x;i>-64;i++){
+    display.clearDisplay();
+  }
+}
+
+
+void test(){
+  Serial.println("test");
+}
+
+//asyncDelay a = asyncDelay(5000);
+asyncDelay b = asyncDelay(5000);
+void loop(){
+  delay(500);  
+  //a.runJob(&test);
+  b.runJob(&getData);
+}  
+
